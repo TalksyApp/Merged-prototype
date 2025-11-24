@@ -50,6 +50,9 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
   }
 
   // ... existing handlePost ...
+  const [isBoosted, setIsBoosted] = useState(false)
+
+  // ... existing handlePost ...
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!content.trim()) return
@@ -67,14 +70,15 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
           userId: currentUser.id,
           content: content.trim(),
           tags: tagArray,
-          frequencyType: "standard",
-          isPromoted: false,
+          frequencyType: isBoosted ? "high-voltage" : "standard",
+          isPromoted: isBoosted,
         }),
       })
 
       if (response.ok) {
         setContent("")
         setTags("")
+        setIsBoosted(false)
         setShowPostModal(false)
         await fetchPosts()
       }
@@ -164,12 +168,12 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
                         <Heart
                           className={`w-5 h-5 ${likedPosts.has(post.id) ? "fill-[#FFD700] text-[#FFD700]" : "group-hover:scale-110"}`}
                         />
-                        <span className="text-sm">{post.likes_count + (likedPosts.has(post.id) ? 1 : 0)}</span>
+                        {/* Removed mock count */}
                       </button>
 
                       <button className="flex items-center gap-2 hover:text-blue-400 transition-colors group">
                         <MessageCircle className="w-5 h-5 group-hover:scale-110" />
-                        <span className="text-sm">12</span>
+                        {/* Removed mock count */}
                       </button>
 
                       <button className="flex items-center gap-2 hover:text-green-400 transition-colors group">
@@ -195,7 +199,7 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
       {/* Post Modal (matching screenshot) */}
       {showPostModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-[#050505] border border-[#1f1f1f] w-full max-w-lg rounded-[24px] p-6 relative shadow-2xl">
+          <div className={`bg-[#050505] border ${isBoosted ? 'border-[#FFD700] shadow-[0_0_30px_rgba(255,215,0,0.1)]' : 'border-[#1f1f1f]'} w-full max-w-lg rounded-[24px] p-6 relative shadow-2xl transition-all duration-300`}>
             <button
               onClick={() => setShowPostModal(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-white"
@@ -204,13 +208,19 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
             </button>
 
             <div className="flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-[#FFD700] fill-[#FFD700]" />
-              <span className="text-[#FFD700] font-bold text-sm tracking-wider">HIGH VOLTAGE</span>
+              {isBoosted ? (
+                <>
+                  <Zap className="w-4 h-4 text-[#FFD700] fill-[#FFD700]" />
+                  <span className="text-[#FFD700] font-bold text-sm tracking-wider">HIGH VOLTAGE</span>
+                </>
+              ) : (
+                <span className="text-white font-bold text-sm tracking-wider">TRANSMIT SIGNAL</span>
+              )}
             </div>
-            <p className="text-xs text-gray-500 mb-6 uppercase tracking-wider">PRIORITY BROADCAST</p>
+            <p className="text-xs text-gray-500 mb-6 uppercase tracking-wider">{isBoosted ? "PRIORITY BROADCAST" : "STANDARD FREQUENCY"}</p>
 
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-lg bg-[#FFD700] flex items-center justify-center text-black font-bold text-lg flex-shrink-0">
+              <div className={`w-10 h-10 rounded-lg ${isBoosted ? 'bg-[#FFD700] text-black' : 'bg-[#1f1f1f] text-white'} flex items-center justify-center font-bold text-lg flex-shrink-0 transition-colors`}>
                 {currentUser.avatar_initials || "U"}
               </div>
 
@@ -237,9 +247,12 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
             </div>
 
             <div className="flex items-center justify-between border-t border-[#1f1f1f] pt-4">
-              <button className="flex items-center gap-2 bg-[#FFD700] text-black px-4 py-2 rounded-full text-xs font-bold hover:bg-[#ffe033] transition-colors shadow-[0_0_15px_rgba(255,215,0,0.3)]">
-                <Zap className="w-3 h-3 fill-black" />
-                BOOST ACTIVE
+              <button
+                onClick={() => setIsBoosted(!isBoosted)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${isBoosted ? 'bg-[#FFD700] text-black shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'bg-[#1a1a1a] text-gray-400 hover:bg-[#2a2a2a]'}`}
+              >
+                <Zap className={`w-3 h-3 ${isBoosted ? 'fill-black' : 'fill-gray-400'}`} />
+                {isBoosted ? "BOOST ACTIVE" : "Boost"}
               </button>
 
               <button

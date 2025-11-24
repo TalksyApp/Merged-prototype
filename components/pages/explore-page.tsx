@@ -76,6 +76,7 @@ export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect 
             {featuredTopics.map((topic) => (
               <div
                 key={topic.id}
+                onClick={() => onTopicSelect(topic.id)}
                 className={`h-48 rounded-2xl p-6 flex flex-col justify-end cursor-pointer transition-transform hover:scale-[1.02] bg-gradient-to-br ${topic.gradient} relative overflow-hidden group`}
               >
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
@@ -99,6 +100,7 @@ export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect 
             {["Cyberpunk", "Void", "Design", "React", "Space", "Minimalism", "AI", "Music", "NightLife"].map((tag) => (
               <div
                 key={tag}
+                onClick={() => setSearchQuery(tag)}
                 className="bg-[#0a0a0a] border border-[#1f1f1f] hover:border-[#333] px-4 py-2 rounded-full cursor-pointer transition-colors"
               >
                 <span className="text-gray-400 font-medium">#{tag}</span>

@@ -7,6 +7,7 @@ import FeedPage from "@/components/pages/feed-page"
 import ExplorePage from "@/components/pages/explore-page"
 import GroupChatsPage from "@/components/pages/group-chats-page"
 import ProfilePage from "@/components/pages/profile-page"
+import MessagesOverlay from "@/components/messages-overlay"
 
 // Simple Settings Placeholder to prevent errors since it was removed
 function SettingsPage() {
@@ -22,6 +23,7 @@ export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
   const [currentPage, setCurrentPage] = useState<"feed" | "explore" | "groups" | "profile" | "settings">("feed")
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [selectedGroupChat, setSelectedGroupChat] = useState<string | null>(null)
+  const [showMessages, setShowMessages] = useState(false)
 
   return (
     <div className="min-h-screen bg-background flex flex-row">
@@ -47,7 +49,10 @@ export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
 
         {/* Mobile/Floating Chat Button (seen in screenshots top right) */}
         <div className="fixed top-6 right-6 z-50">
-          <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform">
+          <button
+            onClick={() => setShowMessages(true)}
+            className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          >
             <svg
               width="20"
               height="20"
@@ -62,6 +67,11 @@ export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
             </svg>
           </button>
         </div>
+
+        {/* Messages Overlay */}
+        {showMessages && (
+          <MessagesOverlay currentUser={currentUser} onClose={() => setShowMessages(false)} />
+        )}
       </main>
     </div>
   )
