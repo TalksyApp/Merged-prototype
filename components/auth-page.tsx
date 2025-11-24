@@ -16,7 +16,8 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
   const [step, setStep] = useState<"basic" | "profile">("basic")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  
+  const [resetLoading, setResetLoading] = useState(false)
+
   const [signinData, setSigninData] = useState({
     email: "",
     password: "",
@@ -136,11 +137,24 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
     }
   }
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  const handleReset = async () => {
+    if (!confirm("This will delete all users and data. Are you sure?")) return
+    setResetLoading(true)
+    try {
+      const res = await fetch("/api/debug/reset", { method: "POST" })
+      if (!res.ok) throw new Error("Reset failed")
+      alert("Database reset. You can now sign up with a new account.")
+      setError("")
+      setMode("signup")
+      setStep("basic")
+    } catch (err) {
+      alert("Failed to reset database")
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     if (mode === "signin") {
       setSigninData((prev) => ({ ...prev, [name]: value }))
@@ -165,9 +179,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               setError("")
             }}
             className={`flex-1 py-2 px-4 rounded-lg font-semibold transition ${
-              mode === "signin"
-                ? "bg-amber-400 text-slate-950"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+              mode === "signin" ? "bg-amber-400 text-slate-950" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
             }`}
           >
             Sign In
@@ -179,9 +191,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               setError("")
             }}
             className={`flex-1 py-2 px-4 rounded-lg font-semibold transition ${
-              mode === "signup"
-                ? "bg-amber-400 text-slate-950"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+              mode === "signup" ? "bg-amber-400 text-slate-950" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
             }`}
           >
             Sign Up
@@ -191,20 +201,14 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
         <div className="bg-slate-900 border border-slate-800 rounded-lg p-8">
           {mode === "signin" ? (
             <form onSubmit={handleSigninSubmit} className="space-y-4">
-              <h2 className="text-xl font-semibold text-slate-50 mb-6">
-                Welcome Back
-              </h2>
+              <h2 className="text-xl font-semibold text-slate-50 mb-6">Welcome Back</h2>
 
               {error && (
-                <div className="bg-red-900/20 border border-red-500/50 text-red-300 p-3 rounded text-sm">
-                  {error}
-                </div>
+                <div className="bg-red-900/20 border border-red-500/50 text-red-300 p-3 rounded text-sm">{error}</div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
                 <Input
                   type="email"
                   name="email"
@@ -217,9 +221,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Password
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
                 <Input
                   type="password"
                   name="password"
@@ -241,20 +243,14 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
             </form>
           ) : step === "basic" ? (
             <form onSubmit={handleBasicSubmit} className="space-y-4">
-              <h2 className="text-xl font-semibold text-slate-50 mb-6">
-                Create Your Account
-              </h2>
+              <h2 className="text-xl font-semibold text-slate-50 mb-6">Create Your Account</h2>
 
               {error && (
-                <div className="bg-red-900/20 border border-red-500/50 text-red-300 p-3 rounded text-sm">
-                  {error}
-                </div>
+                <div className="bg-red-900/20 border border-red-500/50 text-red-300 p-3 rounded text-sm">{error}</div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Username
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Username</label>
                 <Input
                   type="text"
                   name="username"
@@ -267,9 +263,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Email
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
                 <Input
                   type="email"
                   name="email"
@@ -282,9 +276,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Password
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
                 <Input
                   type="password"
                   name="password"
@@ -296,32 +288,20 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-semibold"
-              >
+              <Button type="submit" className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-semibold">
                 Continue
               </Button>
             </form>
           ) : (
-            <form
-              onSubmit={handleProfileSubmit}
-              className="space-y-4 max-h-96 overflow-y-auto"
-            >
-              <h2 className="text-xl font-semibold text-slate-50 mb-6">
-                Complete Your Profile
-              </h2>
+            <form onSubmit={handleProfileSubmit} className="space-y-4 max-h-96 overflow-y-auto">
+              <h2 className="text-xl font-semibold text-slate-50 mb-6">Complete Your Profile</h2>
 
               {error && (
-                <div className="bg-red-900/20 border border-red-500/50 text-red-300 p-3 rounded text-sm">
-                  {error}
-                </div>
+                <div className="bg-red-900/20 border border-red-500/50 text-red-300 p-3 rounded text-sm">{error}</div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Bio
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Bio</label>
                 <textarea
                   name="bio"
                   value={formData.bio}
@@ -333,9 +313,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  City of Birth
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">City of Birth</label>
                 <Input
                   type="text"
                   name="cityOfBirth"
@@ -347,9 +325,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Birthday
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Birthday</label>
                 <Input
                   type="date"
                   name="birthday"
@@ -360,9 +336,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Zodiac
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Zodiac</label>
                 <Input
                   type="text"
                   name="zodiac"
@@ -374,9 +348,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Mother Tongue
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Mother Tongue</label>
                 <Input
                   type="text"
                   name="motherTongue"
@@ -388,9 +360,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Gender
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Gender</label>
                 <select
                   name="gender"
                   value={formData.gender}
@@ -406,9 +376,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Current City
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Current City</label>
                 <Input
                   type="text"
                   name="currentCity"
@@ -420,9 +388,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  School/College
-                </label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">School/College</label>
                 <Input
                   type="text"
                   name="school"
@@ -452,6 +418,16 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
               </div>
             </form>
           )}
+        </div>
+
+        <div className="mt-8 text-center">
+          <button
+            onClick={handleReset}
+            disabled={resetLoading}
+            className="text-xs text-slate-600 hover:text-red-500 transition-colors"
+          >
+            {resetLoading ? "Resetting..." : "Dev: Reset App Data (Fix Login Issues)"}
+          </button>
         </div>
       </div>
     </div>

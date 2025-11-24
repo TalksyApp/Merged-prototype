@@ -4,32 +4,32 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color theme to modern cyan/purple with deep black background */
-  --background: #0d0d0d;
-  --foreground: #eaeaea;
-  --card: #1e1e1e;
-  --card-foreground: #eaeaea;
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #00c9a7;
-  --primary-foreground: #0d0d0d;
-  --secondary: #8b5cf6;
-  --secondary-foreground: #eaeaea;
-  --muted: #404040;
-  --muted-foreground: #a0a0a0;
-  --accent: #00c9a7;
-  --accent-foreground: #0d0d0d;
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: #2a2a2a;
-  --input: #1e1e1e;
-  --ring: #00c9a7;
+  /* Exact colors from screenshots */
+  --background: #050505; /* Deep black/void */
+  --foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --popover: #0a0a0a;
+  --popover-foreground: #ffffff;
+  --primary: #ffd700; /* High Voltage Yellow */
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #888888;
+  --accent: #1a1a1a;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4444;
+  --destructive-foreground: #ffffff;
+  --border: #1f1f1f;
+  --input: #121212;
+  --ring: #ffd700;
+  --radius: 1rem; /* Rounded corners as seen in screenshots */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -76,7 +76,7 @@
 }
 
 @theme inline {
-  --font-sans: "Poppins", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -124,86 +124,17 @@
   }
 }
 
-/* Custom animations for modern UI effects */
-@keyframes glow-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(0, 201, 167, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(0, 201, 167, 0.6);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes hover-lift {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes gradient-border {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-.slide-up {
-  animation: slide-up 0.3s ease-out;
-}
-
-.hover-lift {
-  transition: transform 0.2s ease-out;
-}
-
-.hover-lift:hover {
-  animation: hover-lift 0.2s ease-out forwards;
-}
-
-/* Custom scrollbar with glowing effect */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #1e1e1e;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #00c9a7, #8b5cf6);
-  border-radius: 4px;
+  background: #333;
+  border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #00d9b7, #9b6cf6);
-}
-
-/* Glowing divider effect */
-.glow-divider {
-  background: linear-gradient(90deg, transparent, #00c9a7, transparent);
-  height: 1px;
+  background: #555;
 }

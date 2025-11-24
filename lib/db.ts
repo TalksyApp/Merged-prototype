@@ -35,6 +35,9 @@ export async function initializeDatabase() {
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         content TEXT NOT NULL,
+        tags TEXT[] DEFAULT '{}',
+        is_promoted BOOLEAN DEFAULT false,
+        frequency_type TEXT DEFAULT 'standard',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )

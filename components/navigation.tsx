@@ -1,72 +1,57 @@
 "use client"
 
 import type { User } from "@/lib/storage"
-import { Button } from "@/components/ui/button"
-import { MessageCircle, Compass, Users, UserIcon, LogOut, Zap } from 'lucide-react'
+import { Home, Compass, Bell, UserIcon, Settings } from "lucide-react"
 
 interface NavigationProps {
   currentUser: User
   currentPage: string
-  onPageChange: (page: "feed" | "explore" | "groups" | "profile") => void
+  onPageChange: (page: "feed" | "explore" | "groups" | "profile" | "settings") => void
 }
 
 export default function Navigation({ currentUser, currentPage, onPageChange }: NavigationProps) {
-  const handleLogout = () => {
-    localStorage.removeItem("talksy_current_user")
-    window.location.reload()
-  }
-
+  // Navigation items matching the screenshot icons exactly: Home, Compass, Bell, User, Settings
   const navItems = [
-    { id: "feed", label: "Feed", icon: MessageCircle },
+    { id: "feed", label: "Home", icon: Home },
     { id: "explore", label: "Explore", icon: Compass },
-    { id: "groups", label: "Groups", icon: Users },
+    { id: "notifications", label: "Notifications", icon: Bell }, // Placeholder for Bell
     { id: "profile", label: "Profile", icon: UserIcon },
   ]
 
   return (
-    <nav className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-opacity-95 w-full">
-      <div className="w-full px-4 py-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-primary glow-pulse" />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              TALKSY
-            </h1>
-          </div>
+    <nav className="h-screen w-[80px] fixed left-0 top-0 flex flex-col items-center py-6 bg-background z-50">
+      {/* Sidebar Container */}
+      <div className="flex-1 flex flex-col items-center gap-6 bg-[#0a0a0a] rounded-full px-2 py-6 border border-[#1f1f1f] h-[95vh] my-auto">
+        {navItems.map((item) => {
+          const Icon = item.icon
+          const isActive = currentPage === item.id
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">@{currentUser.username}</span>
-            <Button
-              onClick={handleLogout}
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+          return (
+            <button
+              key={item.id}
+              onClick={() => onPageChange(item.id as any)}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 group ${
+                isActive
+                  ? "bg-[#1f1f1f] text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]"
+                  : "text-gray-500 hover:text-white"
+              }`}
             >
-              <LogOut className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+              <Icon className={`w-5 h-5 ${isActive ? "stroke-2" : "stroke-[1.5px]"}`} />
 
-        <div className="flex justify-center gap-1">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const isActive = currentPage === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => onPageChange(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 relative group ${
-                  isActive ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{item.label}</span>
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full glow-pulse" />
-                )}
-              </button>
-            )
-          })}
+              {/* Active Indicator Dot (optional, but seen in some designs) - Removing for now to match cleaner look */}
+            </button>
+          )
+        })}
+
+        <div className="mt-auto">
+          <button
+            onClick={() => onPageChange("settings" as any)} // Assuming settings is a page
+            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
+              currentPage === "settings" ? "bg-[#1f1f1f] text-white" : "text-gray-500 hover:text-white"
+            }`}
+          >
+            <Settings className="w-5 h-5 stroke-[1.5px]" />
+          </button>
         </div>
       </div>
     </nav>

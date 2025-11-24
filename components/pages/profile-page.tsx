@@ -1,12 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { storage, type User } from "@/lib/storage"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { MapPin, Cake, Sparkles, Bone as Tongue, Users, Home, Edit2 } from 'lucide-react'
+import { MapPin, BookOpen, Edit2 } from "lucide-react"
 
 interface ProfilePageProps {
   currentUser: User
@@ -14,6 +12,7 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ currentUser, onUserUpdate }: ProfilePageProps) {
+  // ... existing state and handlers ...
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState(currentUser)
 
@@ -29,211 +28,84 @@ export default function ProfilePage({ currentUser, onUserUpdate }: ProfilePagePr
   }
 
   return (
-    <div className="h-full overflow-y-auto w-full">
-      <div className="w-full p-4">
-        <div className="bg-gradient-to-r from-primary/20 to-secondary/20 h-32 rounded-t-xl mb-0" />
+    <div className="w-full h-full overflow-y-auto">
+      {/* Banner */}
+      <div className="h-64 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-black relative">
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
 
-        <div className="bg-card border border-border rounded-b-xl p-6 border-t-0">
-          <div className="flex items-start justify-between mb-6 -mt-16 relative z-10">
-            <div className="flex items-end gap-4">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center font-bold text-2xl text-card border-4 border-card shadow-lg shadow-primary/30">
-                {currentUser.avatar}
-              </div>
-              <div className="pb-2">
-                <h1 className="text-2xl font-bold text-foreground">@{currentUser.username}</h1>
-                <p className="text-muted-foreground text-sm">{currentUser.email}</p>
+      <div className="max-w-5xl mx-auto px-6 pb-20 relative">
+        {/* Profile Header */}
+        <div className="flex items-end justify-between -mt-16 mb-12">
+          <div className="flex items-end gap-6">
+            <div className="w-32 h-32 rounded-[24px] bg-[#050505] p-2">
+              <div className="w-full h-full bg-[#1a1a1a] rounded-[20px] flex items-center justify-center text-4xl font-bold text-white border border-[#333]">
+                {currentUser.avatar_initials || "X"}
               </div>
             </div>
-            <Button
-              onClick={() => setIsEditing(!isEditing)}
-              className={`transition-all ${
-                isEditing
-                  ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                  : "bg-primary hover:bg-primary/90 text-primary-foreground"
-              } font-semibold flex items-center gap-2`}
-            >
-              <Edit2 className="w-4 h-4" />
-              {isEditing ? "Cancel" : "Edit Profile"}
-            </Button>
+
+            <div className="pb-4">
+              <h1 className="text-4xl font-black text-white mb-1">{currentUser.username || "User"}</h1>
+              <p className="text-gray-500 font-medium">@{currentUser.username?.toLowerCase() || "user"}</p>
+            </div>
           </div>
 
-          {!isEditing && (
-            <div className="space-y-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">0</p>
-                <p className="text-xs text-muted-foreground">Posts</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">0</p>
-                <p className="text-xs text-muted-foreground">Groups</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-primary">0</p>
-                <p className="text-xs text-muted-foreground">Topics</p>
-              </div>
-            </div>
-          )}
+          <button
+            onClick={() => setIsEditing(!isEditing)}
+            className="bg-white text-black px-6 py-2 rounded-full font-bold hover:bg-gray-200 transition-colors flex items-center gap-2 mb-4"
+          >
+            <Edit2 className="w-4 h-4" />
+            Edit Identity
+          </button>
+        </div>
+
+        {/* Identity Matrix */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-xl font-bold text-white">Identity Matrix</h2>
+            <span className="bg-[#1f1f1f] text-gray-400 text-[10px] font-bold px-2 py-0.5 rounded">Public</span>
+          </div>
 
           {isEditing ? (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Bio</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                <label className="block text-xs font-bold text-[#FFD700] uppercase tracking-wider mb-2">BIO</label>
                 <textarea
                   name="bio"
                   value={formData.bio}
                   onChange={handleChange}
-                  className="w-full bg-input border border-border rounded-lg text-foreground placeholder-muted-foreground p-2"
+                  className="w-full bg-transparent border-b border-[#333] text-white focus:outline-none focus:border-[#FFD700] py-2"
                   rows={3}
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">City of Birth</label>
-                  <Input
-                    type="text"
-                    name="cityOfBirth"
-                    value={formData.cityOfBirth}
-                    onChange={handleChange}
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Birthday</label>
-                  <Input
-                    type="date"
-                    name="birthday"
-                    value={formData.birthday}
-                    onChange={handleChange}
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Zodiac</label>
-                  <Input
-                    type="text"
-                    name="zodiac"
-                    value={formData.zodiac}
-                    onChange={handleChange}
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Mother Tongue</label>
-                  <Input
-                    type="text"
-                    name="motherTongue"
-                    value={formData.motherTongue}
-                    onChange={handleChange}
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Gender</label>
-                  <select
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleChange}
-                    className="w-full bg-input border border-border rounded-lg text-foreground p-2"
-                  >
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">Current City</label>
-                  <Input
-                    type="text"
-                    name="currentCity"
-                    value={formData.currentCity}
-                    onChange={handleChange}
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-foreground mb-2">School/College</label>
-                  <Input
-                    type="text"
-                    name="school"
-                    value={formData.school}
-                    onChange={handleChange}
-                    className="bg-input border-border text-foreground"
-                  />
-                </div>
+              {/* Additional edit fields can go here similar to read-only view */}
+              <div className="col-span-full">
+                <Button onClick={handleSave} className="w-full bg-[#FFD700] text-black hover:bg-[#ffe033]">
+                  Save Matrix
+                </Button>
               </div>
-
-              <Button
-                onClick={handleSave}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold glow-pulse"
-              >
-                Save Changes
-              </Button>
             </div>
           ) : (
-            <div className="space-y-4">
-              {currentUser.bio && (
-                <div className="bg-input rounded-lg p-3 border border-border">
-                  <p className="text-foreground leading-relaxed">{currentUser.bio}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 min-h-[120px] flex flex-col justify-center hover:border-[#333] transition-colors">
+                <div className="flex items-center gap-3 text-[#585858] mb-2 uppercase text-xs font-bold tracking-wider">
+                  <BookOpen className="w-4 h-4" /> BIO
                 </div>
-              )}
+                <p className="text-gray-300 font-medium">{currentUser.bio || "No bio signal detected."}</p>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentUser.cityOfBirth && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">Born in {currentUser.cityOfBirth}</span>
-                  </div>
-                )}
+              <div className="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 min-h-[120px] flex flex-col justify-center hover:border-[#333] transition-colors">
+                <div className="flex items-center gap-3 text-[#585858] mb-2 uppercase text-xs font-bold tracking-wider">
+                  <MapPin className="w-4 h-4" /> Current City
+                </div>
+                <p className="text-gray-300 font-medium">{currentUser.currentCity || "Unknown coordinates"}</p>
+              </div>
 
-                {currentUser.birthday && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Cake className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{currentUser.birthday}</span>
-                  </div>
-                )}
-
-                {currentUser.zodiac && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Sparkles className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{currentUser.zodiac}</span>
-                  </div>
-                )}
-
-                {currentUser.motherTongue && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Tongue className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{currentUser.motherTongue}</span>
-                  </div>
-                )}
-
-                {currentUser.gender && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Users className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">{currentUser.gender}</span>
-                  </div>
-                )}
-
-                {currentUser.currentCity && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Home className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-sm">Lives in {currentUser.currentCity}</span>
-                  </div>
-                )}
-
-                {currentUser.school && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <span className="text-sm">School: {currentUser.school}</span>
-                  </div>
-                )}
+              <div className="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 min-h-[120px] flex flex-col justify-center hover:border-[#333] transition-colors">
+                <div className="flex items-center gap-3 text-[#585858] mb-2 uppercase text-xs font-bold tracking-wider">
+                  <MapPin className="w-4 h-4" /> City of Birth
+                </div>
+                <p className="text-gray-300 font-medium">{currentUser.cityOfBirth || "Origin unknown"}</p>
               </div>
             </div>
           )}

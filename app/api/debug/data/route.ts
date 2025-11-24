@@ -1,22 +1,24 @@
-import { neon } from '@neondatabase/serverless'
+import { neon } from "@neondatabase/serverless"
 
 export async function GET(request: Request) {
   try {
     const sql = neon(process.env.DATABASE_URL!)
 
-    // Fetch all users
-    const users = await sql('SELECT * FROM users_sync LIMIT 10')
-    
+    const users = await sql`SELECT * FROM users LIMIT 10`
+
     return Response.json({
-      status: 'connected',
+      status: "connected",
       users: users,
-      message: 'Successfully connected to Neon'
+      message: "Successfully connected to Neon",
     })
   } catch (error: any) {
-    return Response.json({
-      status: 'error',
-      error: error.message,
-      message: 'Failed to connect to Neon'
-    }, { status: 500 })
+    return Response.json(
+      {
+        status: "error",
+        error: error.message,
+        message: "Failed to connect to Neon",
+      },
+      { status: 500 },
+    )
   }
 }
