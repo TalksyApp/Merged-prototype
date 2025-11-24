@@ -38,12 +38,31 @@ export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect 
     }
   }
 
+  // ... existing imports ...
+  import TopicDetail from "@/components/topic-detail"
+
+  // ... existing code ...
+
   // Mock featured topics if database is empty for design purposes
   const featuredTopics = [
     { id: "1", name: "The Digital Void", category: "PHILOSOPHY", gradient: "from-indigo-900 to-purple-900" },
     { id: "2", name: "Neon Nights", category: "PHOTOGRAPHY", gradient: "from-purple-900 to-pink-900" },
     { id: "3", name: "Code Art", category: "DEVELOPMENT", gradient: "from-blue-900 to-cyan-900" },
   ]
+
+  if (selectedTopic) {
+    const topic = topics.find((t) => t.id === selectedTopic) || {
+      id: selectedTopic,
+      name: featuredTopics.find((t) => t.id === selectedTopic)?.name || "Unknown Topic",
+      description: "Welcome to the void.",
+      members: [],
+      posts: [],
+      createdBy: "system",
+      createdAt: Date.now(),
+    }
+
+    return <TopicDetail topic={topic} currentUser={currentUser} onBack={() => onTopicSelect(null)} />
+  }
 
   return (
     <div className="w-full h-full overflow-y-auto">
