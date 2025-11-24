@@ -34,7 +34,7 @@ export default function ProfilePage({ currentUser, onUserUpdate }: ProfilePagePr
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 pb-20 relative">
+      <div className="w-full px-6 pb-20 relative">
         {/* Profile Header */}
         <div className="flex items-end justify-between -mt-16 mb-12">
           <div className="flex items-end gap-6">

@@ -1,23 +1,17 @@
 "use client"
 import { useState, useEffect } from "react"
-import type { User } from "@/lib/storage"
+import type { User, Topic } from "@/lib/storage"
 import { Search, Zap, TrendingUp } from "lucide-react"
+import TopicDetail from "@/components/topic-detail"
 
 interface ExplorePageProps {
   currentUser: User
   selectedTopic: string | null
   onTopicSelect: (topicId: string | null) => void
+  onNavigateToGroups: () => void
 }
 
-interface Topic {
-  id: string
-  name: string
-  description: string
-  subscribers_count: number
-  created_at: string
-}
-
-export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect }: ExplorePageProps) {
+export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect, onNavigateToGroups }: ExplorePageProps) {
   const [topics, setTopics] = useState<Topic[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [isLoading, setIsLoading] = useState(true)
@@ -37,11 +31,6 @@ export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect 
       setIsLoading(false)
     }
   }
-
-  // ... existing imports ...
-  import TopicDetail from "@/components/topic-detail"
-
-  // ... existing code ...
 
   // Mock featured topics if database is empty for design purposes
   const featuredTopics = [
@@ -66,10 +55,19 @@ export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect 
 
   return (
     <div className="w-full h-full overflow-y-auto">
-      <div className="max-w-5xl mx-auto pt-10 px-6 pb-20">
-        <div className="mb-10">
-          <h1 className="text-4xl font-black text-white mb-2">Explore</h1>
-          <p className="text-gray-500">Find your frequency in the noise.</p>
+      <div className="w-full pt-10 px-6 pb-20">
+        <div className="mb-10 flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-black text-white mb-2">Explore</h1>
+            <p className="text-gray-500">Find your frequency in the noise.</p>
+          </div>
+          <button
+            onClick={onNavigateToGroups}
+            className="bg-[#1f1f1f] hover:bg-[#333] text-white px-4 py-2 rounded-full text-sm font-bold transition-colors flex items-center gap-2"
+          >
+            <Zap className="w-4 h-4 text-[#FFD700]" />
+            Group Chats
+          </button>
         </div>
 
         {/* Search Bar */}

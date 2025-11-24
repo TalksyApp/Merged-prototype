@@ -80,7 +80,7 @@ export default function TopicDetail({ topic, currentUser, onBack }: TopicDetailP
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="max-w-2xl mx-auto">
+      <div className="w-full">
         <div className="sticky top-0 bg-card border-b border-border p-4 z-40 backdrop-blur-sm bg-opacity-95">
           <Button
             onClick={onBack}

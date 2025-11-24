@@ -34,7 +34,12 @@ export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
       <main className="flex-1 ml-[100px] overflow-hidden">
         {currentPage === "feed" && <FeedPage currentUser={currentUser} />}
         {currentPage === "explore" && (
-          <ExplorePage currentUser={currentUser} selectedTopic={selectedTopic} onTopicSelect={setSelectedTopic} />
+          <ExplorePage
+            currentUser={currentUser}
+            selectedTopic={selectedTopic}
+            onTopicSelect={setSelectedTopic}
+            onNavigateToGroups={() => setCurrentPage("groups")}
+          />
         )}
         {/* Keeping groups for functionality even if not in screenshots */}
         {currentPage === "groups" && (
