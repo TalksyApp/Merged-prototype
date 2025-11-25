@@ -63,7 +63,7 @@ export default function ExplorePage({ currentUser, selectedTopic, onTopicSelect,
       <h3 className="text-2xl font-display font-bold text-white mb-6 flex items-center gap-3"><Zap className="text-yellow-400" fill="currentColor" /> Featured</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
         {FEATURED_CARDS.map((card, i) => (
-          <div key={i} onClick={() => onTopicSelect(card.tag)} className="h-40 rounded-3xl relative overflow-hidden group cursor-pointer border border-white/5 hover:border-white/20 transition-all active:scale-95">
+          <div key={i} onClick={() => onTopicSelect(card.tag)} className="h-40 rounded-3xl relative overflow-hidden group cursor-pointer border border-white/5 hover:border-white/20 transition-all active:scale-95 z-0">
             <div className={`absolute inset-0 bg-gradient-to-br ${card.color} opacity-10 group-hover:opacity-20 transition-opacity`}></div>
             <div className="absolute bottom-6 left-6">
               <div className="text-sm font-bold text-gray-400 mb-1 uppercase tracking-wider">{card.subtitle}</div>

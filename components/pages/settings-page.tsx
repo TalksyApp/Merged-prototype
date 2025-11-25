@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import {
-    Bell, Moon, Lock, User, LogOut, ChevronRight,
+    Bell, Moon, Lock, User as UserIcon, LogOut, ChevronRight,
     Shield, Eye, Volume2, Trash2, Palette
 } from 'lucide-react';
 import { storage, type User } from "@/lib/storage"
@@ -55,7 +55,7 @@ export default function SettingsPage({ currentUser, onNavigate, onLogout }: Sett
 
                         {/* Click to go to Profile */}
                         <SettingRow
-                            icon={User}
+                            icon={UserIcon}
                             label="Edit Profile"
                             sublabel="Change name, bio, and avatar"
                             onClick={() => onNavigate('profile')}

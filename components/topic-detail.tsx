@@ -84,7 +84,7 @@ export default function TopicDetail({ topic, currentUser, onBack }: TopicDetailP
 
   return (
     // WIDTH FIXED: Full Screen
-    <div className="flex flex-col h-[calc(100vh-20px)] w-full animate-in fade-in duration-300">
+    <div className="flex flex-col h-full w-full bg-background animate-in fade-in duration-300 relative z-10">
 
       {/* --- 1. HEADER (Sticky) --- */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-[#0a0a0a]/95 backdrop-blur-md sticky top-0 z-30 shadow-lg">
