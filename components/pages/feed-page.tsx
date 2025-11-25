@@ -56,10 +56,8 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
   };
 
   return (
-    // 1. Main Wrapper: Full Width + Padding Left (Keeps Headline near Sidebar)
     <div className="w-full pt-10 pb-32 px-8 animate-in fade-in duration-500 overflow-y-auto h-full relative">
 
-      {/* 2. HEADER: Stays on the Left */}
       <div className="mb-12 flex flex-col items-start w-full">
         <h1 className="text-6xl font-display font-black text-white mb-2 tracking-tighter flex items-center gap-3">
           {topic && <span className="text-gray-600 text-4xl">#</span>}
@@ -70,7 +68,7 @@ export default function FeedPage({ currentUser }: FeedPageProps) {
         </p>
       </div>
 
-      {/* 3. POSTS CONTAINER: Centered (mx-auto) & Restricted Width */}
+      {/* 3. POSTS CONTAINER */}
       <div className="w-full flex flex-col gap-6 pb-20">
         {(!posts || posts.length === 0) ? (
           <div className="p-10 border border-white/10 bg-[#121214] rounded-3xl text-left">

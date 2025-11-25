@@ -43,7 +43,7 @@ export default function MessagesPage() {
     };
 
     return (
-        <div className="w-full h-[calc(100vh-40px)] w-full mx-auto pt-8 pb-8 flex gap-6 animate-in fade-in duration-500 px-6">
+        <div className="w-full h-[calc(100vh-40px)] pt-8 pb-8 flex gap-6 animate-in fade-in duration-500 px-6">
 
             {/* --- LEFT: CONTACT LIST --- */}
             <div className={`w-full md:w-[380px] flex-shrink-0 flex flex-col bg-[#0a0a0a] border border-white/10 rounded-[32px] overflow-hidden ${selectedId ? 'hidden md:flex' : 'flex'}`}>
@@ -110,8 +110,8 @@ export default function MessagesPage() {
                             {activeMessages.map(msg => (
                                 <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-[70%] px-5 py-3.5 rounded-[22px] text-[1.05rem] leading-relaxed ${msg.sender === 'me'
-                                            ? 'bg-indigo-600 text-white rounded-br-md shadow-lg'
-                                            : 'bg-[#1f1f22] text-white rounded-bl-md'
+                                        ? 'bg-indigo-600 text-white rounded-br-md shadow-lg'
+                                        : 'bg-[#1f1f22] text-white rounded-bl-md'
                                         }`}>
                                         {msg.text}
                                     </div>

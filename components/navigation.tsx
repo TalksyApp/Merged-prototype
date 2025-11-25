@@ -19,9 +19,9 @@ export default function Navigation({ currentUser, currentPage, onPageChange }: N
   ]
 
   return (
-    <nav className="h-screen w-[80px] fixed left-0 top-0 flex flex-col items-center py-6 bg-background z-50">
+    <nav className="h-full w-full flex flex-col items-center py-6 bg-background">
       {/* Sidebar Container */}
-      <div className="flex-1 flex flex-col items-center gap-6 bg-[#0a0a0a] rounded-full px-2 py-6 border border-[#1f1f1f] h-[95vh] my-auto">
+      <div className="flex-1 flex flex-col items-center gap-6 bg-[#0a0a0a] rounded-full px-2 py-6 border border-[#1f1f1f] w-[60px]">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = currentPage === item.id
@@ -30,15 +30,12 @@ export default function Navigation({ currentUser, currentPage, onPageChange }: N
             <button
               key={item.id}
               onClick={() => onPageChange(item.id as any)}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 group ${
-                isActive
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 group ${isActive
                   ? "bg-[#1f1f1f] text-white shadow-[0_0_10px_rgba(255,255,255,0.1)]"
                   : "text-gray-500 hover:text-white"
-              }`}
+                }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? "stroke-2" : "stroke-[1.5px]"}`} />
-
-              {/* Active Indicator Dot (optional, but seen in some designs) - Removing for now to match cleaner look */}
             </button>
           )
         })}
@@ -46,9 +43,8 @@ export default function Navigation({ currentUser, currentPage, onPageChange }: N
         <div className="mt-auto">
           <button
             onClick={() => onPageChange("settings" as any)} // Assuming settings is a page
-            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-              currentPage === "settings" ? "bg-[#1f1f1f] text-white" : "text-gray-500 hover:text-white"
-            }`}
+            className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${currentPage === "settings" ? "bg-[#1f1f1f] text-white" : "text-gray-500 hover:text-white"
+              }`}
           >
             <Settings className="w-5 h-5 stroke-[1.5px]" />
           </button>

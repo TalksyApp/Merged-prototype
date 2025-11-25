@@ -14,7 +14,7 @@ interface SettingsPageProps {
 }
 
 export default function SettingsPage({ currentUser, onNavigate, onLogout }: SettingsPageProps) {
-    const [isPureBlack, setIsPureBlack] = useState(false); // Mock state for now
+    const [isPureBlack, setIsPureBlack] = useState(false);
     const [settings, setSettings] = useState({
         notifications: true,
         sound: false,
@@ -48,7 +48,7 @@ export default function SettingsPage({ currentUser, onNavigate, onLogout }: Sett
 
             <div className="flex flex-col gap-8 pb-20">
 
-                {/* --- 1. ACCOUNT SECTION (Restored & Working) --- */}
+                {/* --- 1. ACCOUNT SECTION --- */}
                 <section>
                     <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 px-2">Account</h3>
                     <div className="bg-[#0a0a0a]/80 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden">
@@ -132,7 +132,7 @@ export default function SettingsPage({ currentUser, onNavigate, onLogout }: Sett
                     </div>
                 </section>
 
-                {/* --- 5. DANGER ZONE (Working) --- */}
+                {/* --- 5. DANGER ZONE --- */}
                 <section>
                     <div className="bg-red-500/5 border border-red-500/20 rounded-3xl overflow-hidden mt-4">
 
