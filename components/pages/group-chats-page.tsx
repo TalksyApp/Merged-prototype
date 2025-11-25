@@ -88,7 +88,7 @@ export default function GroupChatsPage({ currentUser, selectedGroupChat, onGroup
     <div className="h-full overflow-y-auto w-full">
       <div className="w-full p-4">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text">
             Group Chats
           </h2>
           <Button
@@ -107,9 +107,8 @@ export default function GroupChatsPage({ currentUser, selectedGroupChat, onGroup
                 <button
                   type="button"
                   onClick={() => setChatType("public")}
-                  className={`px-4 py-2 font-medium transition-all relative ${
-                    chatType === "public" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-4 py-2 font-medium transition-all relative ${chatType === "public" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   Public
                   {chatType === "public" && (
@@ -119,9 +118,8 @@ export default function GroupChatsPage({ currentUser, selectedGroupChat, onGroup
                 <button
                   type="button"
                   onClick={() => setChatType("private")}
-                  className={`px-4 py-2 font-medium transition-all relative ${
-                    chatType === "private" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`px-4 py-2 font-medium transition-all relative ${chatType === "private" ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   Private
                   {chatType === "private" && (
