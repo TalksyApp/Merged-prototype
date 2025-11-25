@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { MessageCircle } from "lucide-react"
 import type { User } from "@/lib/storage"
 import Navigation from "@/components/navigation"
 import FeedPage from "@/components/pages/feed-page"
@@ -9,10 +10,8 @@ import GroupChatsPage from "@/components/pages/group-chats-page"
 import ProfilePage from "@/components/pages/profile-page"
 import MessagesOverlay from "@/components/messages-overlay"
 
-// Simple Settings Placeholder to prevent errors since it was removed
-function SettingsPage() {
-  return <div className="p-8 text-center text-muted-foreground">Settings Page</div>
-}
+import SettingsPage from "@/components/pages/settings-page"
+import MessagesPage from "@/components/pages/messages-page"
 
 interface MainAppProps {
   currentUser: User
@@ -20,7 +19,7 @@ interface MainAppProps {
 }
 
 export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
-  const [currentPage, setCurrentPage] = useState<"feed" | "explore" | "groups" | "profile" | "settings">("feed")
+  const [currentPage, setCurrentPage] = useState<"feed" | "explore" | "groups" | "profile" | "settings" | "messages">("feed")
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [selectedGroupChat, setSelectedGroupChat] = useState<string | null>(null)
   const [showMessages, setShowMessages] = useState(false)
@@ -31,7 +30,7 @@ export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
       <Navigation currentUser={currentUser} currentPage={currentPage} onPageChange={setCurrentPage} />
 
       {/* Main Content Area - Offset by sidebar width */}
-      <main className="flex-1 ml-[100px] overflow-hidden">
+      <main className="flex-1 ml-[100px] overflow-hidden w-full">
         {currentPage === "feed" && <FeedPage currentUser={currentUser} />}
         {currentPage === "explore" && (
           <ExplorePage
@@ -50,34 +49,44 @@ export default function MainApp({ currentUser, onUserUpdate }: MainAppProps) {
           />
         )}
         {currentPage === "profile" && <ProfilePage currentUser={currentUser} onUserUpdate={onUserUpdate} />}
-        {currentPage === "settings" && <SettingsPage />}
+        {currentPage === "settings" && (
+          <SettingsPage
+            currentUser={currentUser}
+            onNavigate={(page) => setCurrentPage(page as any)}
+            onLogout={() => {
+              // Handle logout - for now just reload or clear storage if needed
+              window.location.reload()
+            }}
+          />
+        )}
+        {currentPage === "messages" && <MessagesPage />} {/* Added MessagesPage */}
 
         {/* Mobile/Floating Chat Button (seen in screenshots top right) */}
         <div className="fixed top-6 right-6 z-50">
           <button
-            onClick={() => setShowMessages(true)}
-            className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+            onClick={() => setCurrentPage("messages")}
+            className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center text-white hover:bg-white hover:text-black transition-all shadow-lg"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="black"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
+            <MessageCircle size={20} />
           </button>
         </div>
 
         {/* Messages Overlay */}
-        {showMessages && (
-          <MessagesOverlay currentUser={currentUser} onClose={() => setShowMessages(false)} />
-        )}
+        {
+          showMessages && (
+            <MessagesOverlay currentUser={currentUser} onClose={() => setShowMessages(false)} />
+          )
+        }
       </main>
+
+      {/* Debug Indicator - Remove before production */}
+      <div className="fixed bottom-4 right-4 bg-red-500 text-white p-2 rounded z-[100] font-bold">
+        <span className="block sm:hidden">XS</span>
+        <span className="hidden sm:block md:hidden">SM</span>
+        <span className="hidden md:block lg:hidden">MD</span>
+        <span className="hidden lg:block xl:hidden">LG</span>
+        <span className="hidden xl:block">XL</span>
+      </div>
     </div>
   )
 }

@@ -1,139 +1,101 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { storage, type User, type Post } from "@/lib/storage"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Heart, MessageCircle, Trash2 } from "lucide-react"
-import { formatDistanceToNow } from "date-fns"
+import React from 'react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, CheckCircle2, Zap } from 'lucide-react';
 
 interface PostCardProps {
-  post: Post
-  currentUser: User
-  onLike: (postId: string) => void
+  post: any; // Using any for now to facilitate integration
+  onUserClick?: (post: any) => void;
+  currentUser?: any;
+  onLike?: (id: string) => void;
 }
 
-export default function PostCard({ post, currentUser, onLike }: PostCardProps) {
-  const [showReplies, setShowReplies] = useState(false)
-  const [replyContent, setReplyContent] = useState("")
-  const [replies, setReplies] = useState<any[]>([])
+const Avatar = ({ char, isBoosted }: { char: string, isBoosted: boolean }) => (
+  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center text-white font-bold shadow-lg shrink-0 transition-all duration-300
+    ${isBoosted
+      ? 'bg-yellow-500 text-black border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)]'
+      : 'bg-gradient-to-br from-[#222] to-[#111] border-white/10'}`
+  }>
+    {char}
+  </div>
+);
 
-  const author = storage.getUsers().find((u) => u.id === post.userId)
-  const isLiked = post.likes.includes(currentUser.id)
+export default function PostCard({ post, onUserClick, currentUser, onLike }: PostCardProps) {
+  // Dynamic Styles based on "Boost"
+  const isBoosted = post.isPromoted || post.isBoosted; // Handle both naming conventions
 
-  const handleReply = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!replyContent.trim()) return
-
-    const newReply = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
-      content: replyContent,
-      timestamp: Date.now(),
-    }
-
-    setReplies([...replies, newReply])
-    setReplyContent("")
-  }
-
-  const handleDelete = () => {
-    const posts = storage.getPosts()
-    const filtered = posts.filter((p) => p.id !== post.id)
-    localStorage.setItem("talksy_posts", JSON.stringify(filtered))
-    window.location.reload()
-  }
-
-  if (!author) return null
+  // Adapt post data if it comes from storage (different field names)
+  const authorName = post.author || "User";
+  const handle = post.handle || `@${authorName.toLowerCase()}`;
+  const avatarChar = post.avatar || authorName[0] || "?";
+  const time = post.time || (post.timestamp ? new Date(post.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Now");
+  const likesCount = post.likes ? (Array.isArray(post.likes) ? post.likes.length : post.likes) : 0;
+  const commentsCount = post.comments || (post.replies ? post.replies.length : 0);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 hover-lift transition-all duration-200 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 slide-up">
-      <div className="flex gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 font-semibold text-card">
-          {author.avatar}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-semibold text-foreground">@{author.username}</p>
-              <p className="text-xs text-muted-foreground">
-                {formatDistanceToNow(post.timestamp, { addSuffix: true })}
-              </p>
+    <div className={`bg-[#0a0a0a]/80 backdrop-blur-sm border rounded-[32px] p-8 relative overflow-hidden transition-all duration-300 group
+      ${isBoosted
+        ? 'border-yellow-500/40 shadow-[0_0_40px_rgba(234,179,8,0.05)] hover:border-yellow-500/60'
+        : 'border-white/10 hover:border-white/20 hover:bg-[#111]'}`
+    }>
+
+      {/* Header */}
+      <div className="flex justify-between items-start mb-4">
+        <div
+          className="flex gap-4 items-center cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); if (onUserClick) onUserClick({ ...post, author: authorName, handle, avatar: avatarChar }); }}
+        >
+          <Avatar char={avatarChar} isBoosted={isBoosted} />
+          <div>
+            <div className="flex items-center gap-2">
+              <div className={`font-bold text-xl transition-colors ${isBoosted ? 'text-yellow-100' : 'text-white group-hover:text-indigo-400'}`}>{authorName}</div>
+              {/* Verified Badge */}
+              <CheckCircle2 size={14} className="text-blue-500" fill="black" />
             </div>
-            {post.userId === currentUser.id && (
-              <Button
-                onClick={handleDelete}
-                variant="ghost"
-                size="sm"
-                className="text-destructive hover:text-destructive/80 hover:bg-destructive/10"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
+            <div className="text-sm text-gray-500">{handle} • {time}</div>
           </div>
         </div>
-      </div>
 
-      <p className="text-foreground mb-4 leading-relaxed">{post.content}</p>
-
-      <div className="flex gap-4 mb-3 text-muted-foreground text-sm">
-        <Button
-          onClick={() => onLike(post.id)}
-          variant="ghost"
-          size="sm"
-          className={`flex items-center gap-1 transition-colors ${
-            isLiked ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-          {post.likes.length}
-        </Button>
-        <Button
-          onClick={() => setShowReplies(!showReplies)}
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <MessageCircle className="w-4 h-4" />
-          {replies.length}
-        </Button>
-      </div>
-
-      {showReplies && (
-        <div className="border-t border-border pt-3 mt-3">
-          <form onSubmit={handleReply} className="mb-3 flex gap-2">
-            <Input
-              type="text"
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              placeholder="Reply..."
-              className="bg-input border-border text-foreground placeholder-muted-foreground text-sm"
-            />
-            <Button
-              type="submit"
-              disabled={!replyContent.trim()}
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
-            >
-              Reply
-            </Button>
-          </form>
-
-          <div className="space-y-2">
-            {replies.map((reply) => {
-              const replyAuthor = storage.getUsers().find((u) => u.id === reply.userId)
-              if (!replyAuthor) return null
-              return (
-                <div key={reply.id} className="bg-input rounded-lg p-2 text-sm">
-                  <p className="font-semibold text-foreground">@{replyAuthor.username}</p>
-                  <p className="text-muted-foreground">{reply.content}</p>
-                </div>
-              )
-            })}
+        {/* Top Right Icon (Menu or Boost Badge) */}
+        {isBoosted ? (
+          <div className="bg-yellow-500/10 border border-yellow-500/20 px-3 py-1 rounded-full text-xs font-bold text-yellow-400 flex items-center gap-1">
+            <Zap size={12} fill="currentColor" /> PROMOTED
           </div>
+        ) : (
+          <button className="text-gray-600 hover:text-white transition-colors"><MoreHorizontal size={20} /></button>
+        )}
+      </div>
+
+      {/* Content */}
+      <p className="text-xl text-gray-100 font-light leading-relaxed mb-6 pl-[64px]">
+        {post.content}
+      </p>
+
+      {/* Tags */}
+      {post.tags && post.tags.length > 0 && (
+        <div className="pl-[64px] mb-6 flex gap-2 flex-wrap">
+          {post.tags.map((tag: string, i: number) => (
+            <span key={i} className="text-xs font-bold text-gray-400 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
+              #{tag}
+            </span>
+          ))}
         </div>
       )}
+
+      {/* Buttons */}
+      <div className="flex items-center justify-between pl-[64px] pt-6 border-t border-white/5">
+        <div className="flex gap-6">
+          <Btn icon={Heart} count={likesCount} color="hover:text-pink-500" onClick={() => onLike && onLike(post.id)} />
+          <Btn icon={MessageCircle} count={commentsCount} color="hover:text-blue-400" />
+          <Btn icon={Share2} color="hover:text-green-400" />
+        </div>
+      </div>
     </div>
-  )
+  );
 }
+
+const Btn = ({ icon: Icon, count, color, onClick }: { icon: any, count?: number, color: string, onClick?: () => void }) => (
+  <button onClick={onClick} className={`flex items-center gap-2 text-gray-500 ${color} transition-all`}>
+    <Icon size={20} /> {count !== undefined && <span className="text-sm font-medium">{count}</span>}
+  </button>
+);

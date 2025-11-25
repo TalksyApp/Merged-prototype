@@ -28,7 +28,7 @@ export default function ProfilePage({ currentUser, onUserUpdate }: ProfilePagePr
   }
 
   return (
-    <div className="w-full h-full overflow-y-auto">
+    <div className="w-full pt-10 pb-32 animate-in fade-in slide-in-from-bottom-8 duration-700 px-6">
       {/* Banner */}
       <div className="h-64 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-black relative">
         <div className="absolute inset-0 bg-black/20" />

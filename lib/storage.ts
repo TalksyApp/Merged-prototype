@@ -11,6 +11,7 @@ export interface User {
   currentCity: string
   school: string
   avatar: string
+  avatar_initials?: string
 }
 
 export interface Post {

@@ -9,7 +9,12 @@ const poppins = Poppins({ weight: ["400", "500", "600", "700"], subsets: ["latin
 export const metadata: Metadata = {
   title: "TALKSY - Chat-Based Social Media",
   description: "Connect through conversations",
+}
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({
