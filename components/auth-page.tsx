@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Eye, EyeOff } from "lucide-react"
 import type { User } from "@/lib/storage"
 
 interface AuthPageProps {
@@ -17,6 +18,7 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [resetLoading, setResetLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const [signinData, setSigninData] = useState({
     email: "",
@@ -222,15 +224,24 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
 
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-                <Input
-                  type="password"
-                  name="password"
-                  value={signinData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  className="bg-slate-800 border-slate-700 text-slate-50 placeholder-slate-500"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={signinData.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    className="bg-slate-800 border-slate-700 text-slate-50 placeholder-slate-500 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <Button
@@ -277,15 +288,24 @@ export default function AuthPage({ onUserCreated }: AuthPageProps) {
 
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-                <Input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="Create a password"
-                  className="bg-slate-800 border-slate-700 text-slate-50 placeholder-slate-500"
-                  required
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Create a password"
+                    className="bg-slate-800 border-slate-700 text-slate-50 placeholder-slate-500 pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <Button type="submit" className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-semibold">

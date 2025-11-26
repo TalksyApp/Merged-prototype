@@ -1,104 +1,89 @@
-// In production, replace with proper NextAuth implementation
+import { getServerSession } from "next-auth/next"
+import { NextAuthOptions } from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import bcrypt from "bcryptjs"
+import { sql } from "@/lib/db"
+import { initializeDatabase } from "@/lib/db"
 
-export interface SessionUser {
-  id: string
-  email: string
-  name: string
-}
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password required")
+        }
 
-export interface Session {
-  user: SessionUser
-}
+        try {
+          await initializeDatabase()
 
-// Client-side session management
-export const getSession = async (): Promise<Session | null> => {
-  if (typeof window === "undefined") return null
-  
-  const sessionData = localStorage.getItem("session")
-  if (!sessionData) return null
-  
-  try {
-    return JSON.parse(sessionData)
-  } catch {
-    return null
-  }
-}
+          const users = await sql`
+            SELECT id, username, email, password_hash, avatar_initials
+            FROM users
+            WHERE email = ${credentials.email}
+          `
 
-export const setSession = (session: Session | null) => {
-  if (typeof window === "undefined") return
-  
-  if (session) {
-    localStorage.setItem("session", JSON.stringify(session))
-  } else {
-    localStorage.removeItem("session")
-  }
-}
+          if (users.length === 0) {
+            throw new Error("Invalid email or password")
+          }
 
-export const signOut = () => {
-  if (typeof window === "undefined") return
-  localStorage.removeItem("session")
-  window.location.href = "/auth/signin"
-}
+          const user = users[0]
 
-export const signIn = async (email: string, password: string): Promise<Session> => {
-  // For preview: Simple validation
-  // In production: Send to API route for secure authentication
-  if (!email || !password) {
-    throw new Error("Email and password required")
-  }
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password_hash
+          )
 
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500))
+          if (!isPasswordValid) {
+            throw new Error("Invalid email or password")
+          }
 
-  const session: Session = {
-    user: {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: email.split("@")[0],
-    },
-  }
-
-  setSession(session)
-  return session
-}
-
-export const signUp = async (
-  email: string,
-  password: string,
-  username: string
-): Promise<Session> => {
-  if (!email || !password || !username) {
-    throw new Error("All fields required")
-  }
-
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500))
-
-  const session: Session = {
-    user: {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: username,
-    },
-  }
-
-  setSession(session)
-  return session
-}
-
-
-export const auth = async () => {
-  // In preview: API routes can't access localStorage directly
-  // Return null - in production with NextAuth, this would check JWT tokens
-  if (typeof window !== "undefined") {
-    const sessionData = localStorage.getItem("session")
-    if (sessionData) {
-      try {
-        return JSON.parse(sessionData)
-      } catch {
-        return null
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.username,
+            image: user.avatar_initials,
+          }
+        } catch (error) {
+          console.error("Auth error:", error)
+          throw new Error("Authentication failed")
+        }
+      },
+    }),
+  ],
+  pages: {
+    signIn: "/auth",
+    signOut: "/auth",
+    error: "/auth",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name
       }
-    }
-  }
-  return null
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+      }
+      return session
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 }
+
+// Server-side session helper
+export const auth = () => getServerSession(authOptions)

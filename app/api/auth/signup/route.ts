@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db"
 import { type NextRequest, NextResponse } from "next/server"
 import { initializeDatabase } from "@/lib/db"
+import bcrypt from "bcryptjs"
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
@@ -28,6 +29,9 @@ export async function POST(request: NextRequest) {
 
     const userId = generateId()
     const avatarInitials = username.substring(0, 2).toUpperCase()
+    
+    // Hash the password before storing
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     await sql`
       INSERT INTO users (
@@ -49,7 +53,7 @@ export async function POST(request: NextRequest) {
         ${userId},
         ${username},
         ${email},
-        ${password},
+        ${hashedPassword},
         ${avatarInitials},
         ${bio || null},
         ${cityOfBirth || null},

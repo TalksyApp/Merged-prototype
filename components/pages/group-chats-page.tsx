@@ -25,44 +25,92 @@ export default function GroupChatsPage({ currentUser, selectedGroupChat, onGroup
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const chats = storage.getGroupChats()
-    setGroupChats(chats)
-    setIsLoading(false)
+    const fetchGroupChats = async () => {
+      try {
+        const response = await fetch('/api/group-chats')
+        if (response.ok) {
+          const data = await response.json()
+          // Transform API response to match GroupChat interface
+          const transformedChats = data.map((chat: any) => ({
+            id: chat.id,
+            name: chat.name,
+            description: chat.description,
+            isPrivate: chat.isPrivate,
+            members: chat.members || [],
+            messages: [],
+            createdBy: chat.createdBy,
+            createdAt: new Date(chat.createdAt).getTime()
+          }))
+          setGroupChats(transformedChats)
+        }
+      } catch (error) {
+        console.error('Error fetching group chats:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchGroupChats()
   }, [])
 
-  const handleCreateChat = (e: React.FormEvent) => {
+  const handleCreateChat = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newChatName.trim()) return
 
-    const newChat: GroupChat = {
-      id: Date.now().toString(),
-      name: newChatName,
-      description: newChatDesc,
-      isPrivate: chatType === "private",
-      members: [currentUser.id],
-      messages: [],
-      createdBy: currentUser.id,
-      createdAt: Date.now(),
-    }
+    try {
+      const response = await fetch('/api/group-chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newChatName,
+          description: newChatDesc,
+          isPrivate: chatType === "private",
+          userId: currentUser.id
+        })
+      })
 
-    storage.addGroupChat(newChat)
-    setGroupChats([...groupChats, newChat])
-    setNewChatName("")
-    setNewChatDesc("")
-    setShowCreateForm(false)
+      if (response.ok) {
+        const { id } = await response.json()
+        const newChat: GroupChat = {
+          id,
+          name: newChatName,
+          description: newChatDesc,
+          isPrivate: chatType === "private",
+          members: [currentUser.id],
+          messages: [],
+          createdBy: currentUser.id,
+          createdAt: Date.now(),
+        }
+        setGroupChats([...groupChats, newChat])
+        setNewChatName("")
+        setNewChatDesc("")
+        setShowCreateForm(false)
+      }
+    } catch (error) {
+      console.error('Error creating group chat:', error)
+    }
   }
 
-  const handleJoinChat = (chatId: string) => {
-    setGroupChats(
-      groupChats.map((chat) => {
-        if (chat.id === chatId && !chat.members.includes(currentUser.id)) {
-          const updated = { ...chat, members: [...chat.members, currentUser.id] }
-          storage.updateGroupChat(chatId, updated)
-          return updated
-        }
-        return chat
-      }),
-    )
+  const handleJoinChat = async (chatId: string) => {
+    try {
+      const response = await fetch(`/api/group-chats/${chatId}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id })
+      })
+
+      if (response.ok) {
+        setGroupChats(
+          groupChats.map((chat) => {
+            if (chat.id === chatId && !chat.members.includes(currentUser.id)) {
+              return { ...chat, members: [...chat.members, currentUser.id] }
+            }
+            return chat
+          }),
+        )
+      }
+    } catch (error) {
+      console.error('Error joining group chat:', error)
+    }
   }
 
   if (selectedGroupChat) {

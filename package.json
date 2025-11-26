@@ -6,7 +6,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "db:init": "tsx --env-file=.env.local scripts/init-db.ts",
+    "db:seed": "tsx --env-file=.env.local scripts/seed-db.ts",
+    "db:check": "tsx --env-file=.env.local scripts/check-db.ts"
   },
   "dependencies": {
     "@auth/core": "latest",
@@ -71,8 +74,10 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.2.3",
     "postcss": "^8.5",
     "tailwindcss": "^4.1.9",
+    "tsx": "^4.20.6",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
   }

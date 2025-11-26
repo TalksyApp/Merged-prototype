@@ -5,7 +5,7 @@ import {
   ArrowLeft, Hash, Bell, Users, Search, HelpCircle,
   PlusCircle, Gift, Sticker, Smile, Send
 } from 'lucide-react';
-import { storage, type Topic, type User, type Post } from "@/lib/storage"
+import { type Topic, type User, type Post } from "@/lib/storage"
 import PostCard from "@/components/post-card"
 
 interface TopicDetailProps {
@@ -19,64 +19,115 @@ export default function TopicDetail({ topic, currentUser, onBack }: TopicDetailP
   const [posts, setPosts] = useState<Post[]>([])
 
   useEffect(() => {
-    // Fetch posts for this topic
-    const allPosts = storage.getPosts()
-
-    let topicPosts: Post[] = []
-
-    if (topic.posts) {
-      topicPosts = allPosts.filter((p) => topic.posts.includes(p.id))
-    } else if (topic.name) {
-      // Fallback: Filter by tag matching topic name
-      // @ts-ignore
-      topicPosts = allPosts.filter((p) => p.tags && p.tags.includes(topic.name))
-    }
-
-    setPosts(topicPosts.sort((a, b) => b.timestamp - a.timestamp))
-  }, [topic])
-
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      const newPost: Post = {
-        id: Date.now().toString(),
-        userId: currentUser.id,
-        content: inputValue.trim(),
-        timestamp: Date.now(),
-        likes: [],
-        replies: [],
-        // Add tags if Post type supports it, otherwise just content
-      }
-
-      storage.addPost(newPost)
-
-      // Update topic with new post ID if it's a full topic object
-      if (topic.posts) {
-        const updatedTopic = { ...topic, posts: [...topic.posts, newPost.id] }
-        // Update topic in storage (simplified)
-        const topics = storage.getTopics()
-        const index = topics.findIndex(t => t.id === topic.id)
-        if (index !== -1) {
-          topics[index] = updatedTopic
-          localStorage.setItem("talksy_topics", JSON.stringify(topics))
+    const fetchTopicPosts = async () => {
+      try {
+        const response = await fetch(`/api/posts?userId=${currentUser.id}`)
+        if (response.ok) {
+          const allPosts = await response.json()
+          // Filter posts by tag matching topic name
+          const topicPosts = allPosts.filter((post: any) => 
+            post.tags && post.tags.includes(topic.name)
+          )
+          
+          // Transform to Post interface
+          const transformedPosts = topicPosts.map((post: any) => ({
+            id: post.id,
+            userId: post.user_id || '',
+            content: post.content,
+            timestamp: new Date(post.created_at).getTime(),
+            likes: post.likes_count || 0,
+            replies: [],
+            comments: post.comments_count || 0,
+            author: post.username,
+            handle: `@${post.username}`,
+            avatar: post.avatar_initials || post.username[0],
+            tags: post.tags || [],
+            isBoosted: post.is_boosted || false,
+            isLikedByUser: post.is_liked_by_user || false
+          }))
+          
+          setPosts(transformedPosts)
         }
+      } catch (error) {
+        console.error('Error fetching topic posts:', error)
       }
+    }
+    fetchTopicPosts()
+  }, [topic, currentUser.id])
 
-      setPosts([newPost, ...posts])
-      setInputValue("");
+  const handleSend = async () => {
+    if (inputValue.trim()) {
+      try {
+        const response = await fetch('/api/posts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: inputValue.trim(),
+            userId: currentUser.id,
+            tags: [topic.name],
+            isBoosted: false
+          })
+        })
+
+        if (response.ok) {
+          const { id } = await response.json()
+          const newPost: Post = {
+            id,
+            userId: currentUser.id,
+            content: inputValue.trim(),
+            timestamp: Date.now(),
+            likes: [],
+            replies: [],
+            // @ts-ignore
+            author: currentUser.username,
+            handle: `@${currentUser.username}`,
+            avatar: currentUser.avatar_initials || currentUser.username[0],
+            tags: [topic.name],
+            isBoosted: false,
+            isLikedByUser: false
+          }
+
+          setPosts([newPost, ...posts])
+          setInputValue("")
+        }
+      } catch (error) {
+        console.error('Error creating post:', error)
+      }
     }
   };
 
-  const handleLike = (postId: string) => {
-    setPosts(posts.map(post => {
+  const handleLike = async (postId: string) => {
+    // Optimistic update - update UI immediately
+    const optimisticPosts = posts.map(post => {
       if (post.id === postId) {
-        const isLiked = post.likes.includes(currentUser.id)
+        const currentLikes = typeof post.likes === 'number' ? post.likes : (post.likes as any).length || 0
+        const isCurrentlyLiked = (post as any).isLikedByUser
         return {
           ...post,
-          likes: isLiked ? post.likes.filter(id => id !== currentUser.id) : [...post.likes, currentUser.id]
-        }
+          likes: isCurrentlyLiked ? Math.max(0, currentLikes - 1) : currentLikes + 1,
+          isLikedByUser: !isCurrentlyLiked
+        } as any
       }
       return post
-    }))
+    })
+    setPosts(optimisticPosts)
+
+    try {
+      const response = await fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id })
+      })
+
+      if (!response.ok) {
+        // Revert on error
+        setPosts(posts)
+      }
+    } catch (error) {
+      console.error('Error liking post:', error)
+      // Revert on error
+      setPosts(posts)
+    }
   }
 
   // Default starter message if no posts exist
@@ -131,9 +182,9 @@ export default function TopicDetail({ topic, currentUser, onBack }: TopicDetailP
           </div>
         )}
 
-        {displayPosts.map((post, index) => (
+        {displayPosts.map((post) => (
           <div key={post.id} className="hover:bg-[#2f3136]/30 px-2 py-2 rounded-lg transition-colors">
-            <PostCard key={post.id} post={post} currentUser={currentUser} onLike={handleLike} />
+            <PostCard post={post} currentUser={currentUser} onLike={handleLike} />
           </div>
         ))}
       </div>

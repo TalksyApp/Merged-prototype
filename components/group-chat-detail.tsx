@@ -1,9 +1,7 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { storage, type GroupChat, type User, type ChatMessage } from "@/lib/storage"
+import React, { useState } from "react"
+import { type GroupChat, type User, type ChatMessage } from "@/lib/storage"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Send } from "lucide-react"
@@ -17,35 +15,82 @@ interface GroupChatDetailProps {
 }
 
 export default function GroupChatDetail({ chat, currentUser, onBack, onChatUpdate }: GroupChatDetailProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(chat.messages)
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [messageContent, setMessageContent] = useState("")
   const [isMember, setIsMember] = useState(chat.members.includes(currentUser.id))
+  const [users, setUsers] = useState<User[]>([])
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  // Fetch messages and users
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [messagesRes, usersRes] = await Promise.all([
+          fetch(`/api/group-chats/${chat.id}/messages`),
+          fetch('/api/users')
+        ])
+        
+        if (messagesRes.ok) {
+          const messagesData = await messagesRes.json()
+          setMessages(messagesData)
+        }
+        
+        if (usersRes.ok) {
+          const usersData = await usersRes.json()
+          setUsers(usersData)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+    fetchData()
+  }, [chat.id])
+
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!messageContent.trim() || !isMember) return
 
-    const newMessage: ChatMessage = {
-      id: Date.now().toString(),
-      userId: currentUser.id,
-      content: messageContent.trim(),
-      timestamp: Date.now(),
+    try {
+      const response = await fetch(`/api/group-chats/${chat.id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: messageContent.trim(),
+          userId: currentUser.id
+        })
+      })
+
+      if (response.ok) {
+        const { id } = await response.json()
+        const newMessage: ChatMessage = {
+          id,
+          userId: currentUser.id,
+          content: messageContent.trim(),
+          timestamp: Date.now(),
+        }
+        setMessages([...messages, newMessage])
+        setMessageContent("")
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
     }
-
-    const updatedMessages = [...messages, newMessage]
-    setMessages(updatedMessages)
-    setMessageContent("")
-
-    const updatedChat = { ...chat, messages: updatedMessages }
-    storage.updateGroupChat(chat.id, updatedChat)
-    onChatUpdate(updatedChat)
   }
 
-  const handleJoin = () => {
-    const updatedChat = { ...chat, members: [...chat.members, currentUser.id] }
-    storage.updateGroupChat(chat.id, updatedChat)
-    setIsMember(true)
-    onChatUpdate(updatedChat)
+  const handleJoin = async () => {
+    try {
+      const response = await fetch(`/api/group-chats/${chat.id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: currentUser.id })
+      })
+
+      if (response.ok) {
+        setIsMember(true)
+        const updatedChat = { ...chat, members: [...chat.members, currentUser.id] }
+        onChatUpdate(updatedChat)
+      }
+    } catch (error) {
+      console.error('Error joining chat:', error)
+    }
   }
 
   return (
@@ -69,19 +114,22 @@ export default function GroupChatDetail({ chat, currentUser, onBack, onChatUpdat
         {messages.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">No messages yet. Start the conversation!</div>
         ) : (
-          messages.map((msg) => {
-            const author = storage.getUsers().find((u) => u.id === msg.userId)
-            if (!author) return null
+          messages.map((msg: any) => {
+            const author = users.find((u) => u.id === msg.userId)
+            const username = msg.username || author?.username || 'Unknown'
+            const avatar = msg.avatar_initials || author?.avatar_initials || username[0]
+            const timestamp = msg.timestamp || new Date(msg.created_at).getTime()
+            
             return (
               <div key={msg.id} className="flex gap-3 slide-up">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center flex-shrink-0 font-semibold text-card text-xs">
-                  {author.avatar}
+                  {avatar}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="font-semibold text-foreground">@{author.username}</p>
+                    <p className="font-semibold text-foreground">@{username}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(msg.timestamp, { addSuffix: true })}
+                      {formatDistanceToNow(timestamp, { addSuffix: true })}
                     </p>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">{msg.content}</p>
